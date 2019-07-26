@@ -75,9 +75,23 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="GameMsg.cpp" />
+    <ClCompile Include="game_channel.cpp" />
+    <ClCompile Include="game_protocol.cpp" />
+    <ClCompile Include="game_role.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>
-  <ItemDefinitionGroup />
+  <ItemGroup>
+    <ClInclude Include="GameMsg.h" />
+    <ClInclude Include="game_channel.h" />
+    <ClInclude Include="game_protocol.h" />
+    <ClInclude Include="game_role.h" />
+  </ItemGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <Link>
+      <LibraryDependencies>zinx</LibraryDependencies>
+    </Link>
+  </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
 </Project>
