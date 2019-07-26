@@ -8,6 +8,10 @@ class game_role :
 public:
 	game_role();
 	virtual ~game_role();
+	void bind_protocol(Iprotocol *_proto)
+	{
+		pGameProtocol = _proto;
+	}
 
 	// Í¨¹ý Irole ¼Ì³Ð
 	virtual bool Init() override;

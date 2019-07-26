@@ -10,6 +10,10 @@ public:
 
 	// Í¨¹ý ZinxTcpData ¼Ì³Ð
 	virtual AZinxHandler * GetInputNextStage(BytesMsg & _oInput) override;
+	void bind_protocol(Iprotocol *_proto)
+	{
+		pGameProtocol = _proto;
+	}
 };
 
 class game_channel_fact :public IZinxTcpConnFact {

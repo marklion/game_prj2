@@ -10,6 +10,14 @@ class game_protocol :
 public:
 	game_protocol();
 	virtual ~game_protocol();
+	void bind_channel(Ichannel *_channel)
+	{
+		pGameChannel = _channel;
+	}
+	void bind_role(Irole *_role)
+	{
+		pGameRole = _role;
+	}
 
 	// Í¨¹ý Iprotocol ¼Ì³Ð
 	virtual UserData * raw2request(std::string _szInput) override;
