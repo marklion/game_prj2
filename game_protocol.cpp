@@ -30,15 +30,15 @@ UserData * game_protocol::raw2request(std::string _szInput)
 			break;
 		}
 		/*取出长度和ID*/
-		unsigned int uilength = (unsigned int)last_dgram[0];
-		uilength |= ((unsigned int)last_dgram[1]) << 8;
-		uilength |= ((unsigned int)last_dgram[2]) << 16;
-		uilength |= ((unsigned int)last_dgram[3]) << 24;
+		unsigned int uilength = (unsigned int)(unsigned char)last_dgram[0];
+		uilength += ((unsigned int)(unsigned char)last_dgram[1]) * 256;
+		uilength += ((unsigned int)(unsigned char)last_dgram[2]) * 256 *256;
+		uilength += ((unsigned int)(unsigned char)last_dgram[3]) * 256 * 256 * 256;
 
-		unsigned int uiID = (unsigned int)last_dgram[4];
-		uiID |= ((unsigned int)last_dgram[5]) << 8;
-		uiID |= ((unsigned int)last_dgram[6]) << 16;
-		uiID |= ((unsigned int)last_dgram[7]) << 24;
+		unsigned int uiID = (unsigned int)(unsigned char)last_dgram[4];
+		uiID |= ((unsigned int)(unsigned char)last_dgram[5]) << 8;
+		uiID |= ((unsigned int)(unsigned char)last_dgram[6]) << 16;
+		uiID |= ((unsigned int)(unsigned char)last_dgram[7]) << 24;
 
 		/*判断后续内容是否够长*/
 		if (uilength > last_dgram.size() - 8)
