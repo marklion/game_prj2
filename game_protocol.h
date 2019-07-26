@@ -7,6 +7,9 @@ class game_protocol :
 	Ichannel *pGameChannel = NULL;
 	/*绑定处理角色对象*/
 	Irole *pGameRole = NULL;
+
+	/*缓存上次还未来的级处理的报文*/
+	std::string last_dgram;
 public:
 	game_protocol();
 	virtual ~game_protocol();
