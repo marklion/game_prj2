@@ -42,6 +42,9 @@ GameMsg::GameMsg(MSG_TYPE _type, std::string _V):m_msg_type(_type)
 	}
 	/*交给成员解析*/
 	pMsgContent->ParseFromString(_V);
+
+	/*打印调试信息*/
+	cout << "recv message:"<<pMsgContent->Utf8DebugString() << endl;
 }
 
 GameMsg::GameMsg(MSG_TYPE _type):m_msg_type(_type)
@@ -75,14 +78,23 @@ GameMsg::GameMsg(MSG_TYPE _type):m_msg_type(_type)
 
 GameMsg::~GameMsg()
 {
+	if (NULL != pMsgContent)
+	{
+		delete pMsgContent;
+		pMsgContent= NULL;
+	}
 }
 
 /*将消息序列化成字节（用string存）*/
 std::string GameMsg::serielize()
 {
 	std::string ret;
+
+	/*打印调试信息*/
+	cout << "send message:" << pMsgContent->Utf8DebugString() << endl;
+
 	/*让成员帮忙序列化*/
-	pMsgContent->SerializePartialToString(&ret);
+	pMsgContent->SerializeToString(&ret);
 
 	return ret;
 }
