@@ -41,7 +41,7 @@ GameMsg::GameMsg(MSG_TYPE _type, std::string _V):m_msg_type(_type)
 		break;
 	}
 	/*交给成员解析*/
-	pMsgContent->ParsePartialFromString(_V);
+	pMsgContent->ParseFromString(_V);
 }
 
 GameMsg::GameMsg(MSG_TYPE _type):m_msg_type(_type)
