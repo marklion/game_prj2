@@ -80,17 +80,22 @@
     <ClCompile Include="game_protocol.cpp" />
     <ClCompile Include="game_role.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="msg.pb.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GameMsg.h" />
     <ClInclude Include="game_channel.h" />
     <ClInclude Include="game_protocol.h" />
     <ClInclude Include="game_role.h" />
+    <ClInclude Include="msg.pb.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
-      <LibraryDependencies>zinx</LibraryDependencies>
+      <LibraryDependencies>zinx;protobuf;pthread</LibraryDependencies>
     </Link>
+    <ClCompile>
+      <AdditionalOptions>-pthread</AdditionalOptions>
+    </ClCompile>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />
