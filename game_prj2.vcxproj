@@ -75,6 +75,7 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros" />
   <ItemGroup>
+    <ClCompile Include="AOI_world.cpp" />
     <ClCompile Include="GameMsg.cpp" />
     <ClCompile Include="game_channel.cpp" />
     <ClCompile Include="game_protocol.cpp" />
@@ -83,6 +84,7 @@
     <ClCompile Include="msg.pb.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AOI_world.h" />
     <ClInclude Include="GameMsg.h" />
     <ClInclude Include="game_channel.h" />
     <ClInclude Include="game_protocol.h" />
