@@ -59,6 +59,29 @@ GameMsg * game_role::MakeInitPos()
 	return ret;
 }
 
+GameMsg * game_role::MakeLogoff()
+{
+	auto ret = new GameMsg(GameMsg::MSG_TYPE_LOGOFF_ID);
+	auto logoff_msg = dynamic_cast<pb::SyncPid *>(ret->pMsgContent);
+
+	logoff_msg->set_pid(iPid);
+	logoff_msg->set_username(m_username);
+
+	return ret;
+}
+
+GameMsg * game_role::MakeTalkBroadCast(std::string _content)
+{
+	GameMsg *ret = new GameMsg(GameMsg::MSG_TYPE_BROAD_CAST);
+	/*设置广播类型是1，把聊天内容设置到ret里*/
+	auto broadcast_talk = dynamic_cast<pb::BroadCast *>(ret->pMsgContent);
+	broadcast_talk->set_pid(iPid);
+	broadcast_talk->set_username(m_username);
+	broadcast_talk->set_tp(1);
+	broadcast_talk->set_content(_content);
+	return ret;
+}
+
 static int g_curID = 0;
 game_role::game_role()
 {
@@ -108,22 +131,42 @@ UserData * game_role::ProcMsg(UserData & _poUserData)
 {
 	/*测试，所有消息拷贝后发掉*/
 	GET_REF2DATA(multi_msg, input_msg, _poUserData);
+	string  talk_content;
 	for (auto singlemsg : input_msg.m_msg_list)
 	{
-		cout << singlemsg->GetTalkContent() << endl;
-		/*创建一个1号消息发送出去（测试）*/
-		auto poutput = new GameMsg(GameMsg::MSG_TYPE_LOGIN_ID);
-		/*设置pid=100  username="apple"*/
-		dynamic_cast<pb::SyncPid *> (poutput->pMsgContent)->set_pid(100);
-		dynamic_cast<pb::SyncPid *> (poutput->pMsgContent)->set_username("apple");
-		/*直接发送消息*/
-		ZinxKernel::Zinx_SendOut(*poutput, *pGameProtocol);
+		/*根据消息类型不同进行不同处理*/
+		switch (singlemsg->m_msg_type)
+		{
+		case GameMsg::MSG_TYPE_TALK_CONTENT:
+			/*聊天消息的处理--》构造广播聊天消息---》发给所有玩家*/
+			talk_content = singlemsg->GetTalkContent();
+			for (auto itr : ZinxKernel::Zinx_GetAllRole())
+			{
+				auto player = dynamic_cast<game_role *>(itr);
+				auto poutmsg = MakeTalkBroadCast(talk_content);
+				ZinxKernel::Zinx_SendOut(*poutmsg, *(player->pGameProtocol));
+			}
+			break;
+		case GameMsg::MSG_TYPE_NEW_POSTION:
+			break;
+		default:
+			break;
+		}
 	}
 	return NULL;
 }
 
 void game_role::Fini()
 {
+	//客户端断开时，向周围玩家发送其断开的消息
+	/*获取周围玩家，循环发送*/
+	auto player_list = g_world.GetSrdPlayers(this);
+	for (auto itr : player_list)
+	{
+		auto player = dynamic_cast<game_role *>(itr);
+		auto logoff_msg = MakeLogoff();
+		ZinxKernel::Zinx_SendOut(*logoff_msg, *(player->pGameProtocol));
+	}
 	/*从游戏世界摘出玩家*/
 	g_world.DelPlayer(this);
 }

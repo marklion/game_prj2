@@ -23,6 +23,10 @@ class game_role :
 	GameMsg *MakeSrdPlayers();
 	//构造自己出生位置的消息
 	GameMsg *MakeInitPos();
+	//构造断开的消息
+	GameMsg *MakeLogoff();
+	//构造广播聊天消息
+	GameMsg *MakeTalkBroadCast(std::string _content);
 public:
 	game_role();
 	virtual ~game_role();
