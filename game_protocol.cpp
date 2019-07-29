@@ -12,6 +12,9 @@ game_protocol::game_protocol()
 
 game_protocol::~game_protocol()
 {
+	/*连接断了--》析构协议对象--》摘出role对象--》释放之*/
+	ZinxKernel::Zinx_Del_Role(*pGameRole);
+	delete pGameRole;
 }
 
 UserData * game_protocol::raw2request(std::string _szInput)

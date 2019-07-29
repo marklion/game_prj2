@@ -10,6 +10,9 @@ game_channel::game_channel(int _fd):ZinxTcpData(_fd)
 
 game_channel::~game_channel()
 {
+	/*连接断了--》摘出协议对象--》释放掉*/
+	ZinxKernel::Zinx_Del_Proto(*pGameProtocol);
+	delete pGameProtocol;
 }
 
 AZinxHandler * game_channel::GetInputNextStage(BytesMsg & _oInput)
