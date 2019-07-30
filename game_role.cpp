@@ -124,7 +124,9 @@ void game_role::proc_new_position(float _x, float _y, float _z, float _v)
 		/*find会返回查找到的元素的迭代器，若没找到返回end*/
 		if (new_srd.end() == find(new_srd.begin(), new_srd.end(), single))
 		{
+			auto player = dynamic_cast<game_role*>(single);
 			/*视野消失*/
+			view_lost(player);
 		}
 	}
 	/*遍历新邻居，在旧邻居中查找，没找到--》视野出现*/
@@ -133,7 +135,8 @@ void game_role::proc_new_position(float _x, float _y, float _z, float _v)
 		if (old_srd.end() == find(old_srd.begin(), old_srd.end(), single))
 		{
 			/*视野出现*/
-
+			auto player = dynamic_cast<game_role*>(single);
+			view_appear(player);
 		}
 	}
 	//2. 广播新位置给周围玩家
@@ -145,6 +148,31 @@ void game_role::proc_new_position(float _x, float _y, float _z, float _v)
 		ZinxKernel::Zinx_SendOut(*pmsg, *(player->pGameProtocol));
 	}
 }
+
+void game_role::view_lost(game_role *_old_srd)
+{
+	/*向旧邻居发自己的下线消息*/
+	auto logoff_msg = this->MakeLogoff();
+
+	ZinxKernel::Zinx_SendOut(*logoff_msg, *(_old_srd->pGameProtocol));
+
+	/*向自己发旧邻居的下线消息*/
+	logoff_msg = _old_srd->MakeLogoff();
+	ZinxKernel::Zinx_SendOut(*logoff_msg, *(this->pGameProtocol));
+}
+
+void game_role::view_appear(game_role *_new_srd)
+{
+	/*发送自己的出现消息（广播出生位置）给新邻居*/
+
+	auto appear = this->MakeInitPos();
+	ZinxKernel::Zinx_SendOut(*appear, *(_new_srd->pGameProtocol));
+	
+	/*发送邻居的出现消息给自己*/
+	appear = _new_srd->MakeInitPos();
+	ZinxKernel::Zinx_SendOut(*appear, *(this->pGameProtocol));
+}
+
 game_role::game_role()
 {
 	x = 100;

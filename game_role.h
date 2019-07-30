@@ -32,6 +32,10 @@ class game_role :
 
 	/*处理移动消息*/
 	void proc_new_position(float _x, float _y, float _z, float _v);
+	/*视野消失*/
+	void view_lost(game_role *_old_srd);
+	/*视野出现*/
+	void view_appear(game_role *_new_srd);
 public:
 	game_role();
 	virtual ~game_role();
