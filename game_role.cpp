@@ -2,6 +2,7 @@
 #include "GameMsg.h"
 #include <iostream>
 #include "msg.pb.h"
+#include <algorithm>
 
 using namespace std;
 static AOI_world g_world(0, 400, 0, 400, 20, 20);
@@ -82,7 +83,68 @@ GameMsg * game_role::MakeTalkBroadCast(std::string _content)
 	return ret;
 }
 
+GameMsg * game_role::MakeNewPostionBroadCast()
+{
+	auto ret = new GameMsg(GameMsg::MSG_TYPE_BROAD_CAST);
+
+	auto new_pos_msg = dynamic_cast<pb::BroadCast *>(ret->pMsgContent);
+	new_pos_msg->set_pid(iPid);
+	new_pos_msg->set_username(m_username);
+	new_pos_msg->set_tp(4);
+
+	auto position = new_pos_msg->mutable_p();
+	position->set_x(x);
+	position->set_y(y);
+	position->set_z(z);
+	position->set_v(v);
+
+	return ret;
+}
+
 static int g_curID = 0;
+void game_role::proc_new_position(float _x, float _y, float _z, float _v)
+{
+	//1. 跨网格视野处理
+	/*获取旧邻居*/
+	auto old_srd = g_world.GetSrdPlayers(this);
+
+	/*摘除玩家--》更新坐标--》添加玩家*/
+	g_world.DelPlayer(this);
+	x = _x;
+	y = _y;
+	z = _z;
+	v = _v;
+	g_world.AddPlayer(this);
+	/*获取新邻居*/
+	auto new_srd = g_world.GetSrdPlayers(this);
+
+	/*遍历旧邻居，在新邻居中查找，没找到--》视野消失*/
+	for (auto single : old_srd)
+	{
+		/*find会返回查找到的元素的迭代器，若没找到返回end*/
+		if (new_srd.end() == find(new_srd.begin(), new_srd.end(), single))
+		{
+			/*视野消失*/
+		}
+	}
+	/*遍历新邻居，在旧邻居中查找，没找到--》视野出现*/
+	for (auto single : new_srd)
+	{
+		if (old_srd.end() == find(old_srd.begin(), old_srd.end(), single))
+		{
+			/*视野出现*/
+
+		}
+	}
+	//2. 广播新位置给周围玩家
+	/*构造新位置广播消息，循环发送*/
+	for (auto single : new_srd)
+	{
+		auto pmsg = MakeNewPostionBroadCast();
+		auto player = dynamic_cast<game_role *>(single);
+		ZinxKernel::Zinx_SendOut(*pmsg, *(player->pGameProtocol));
+	}
+}
 game_role::game_role()
 {
 	x = 100;
@@ -148,6 +210,12 @@ UserData * game_role::ProcMsg(UserData & _poUserData)
 			}
 			break;
 		case GameMsg::MSG_TYPE_NEW_POSTION:
+			/*处理移动消息*/
+			//取出坐标信息
+			proc_new_position(dynamic_cast<pb::Position *>(singlemsg->pMsgContent)->x(),
+							  dynamic_cast<pb::Position *>(singlemsg->pMsgContent)->y(),
+							  dynamic_cast<pb::Position *>(singlemsg->pMsgContent)->z(),
+				              dynamic_cast<pb::Position *>(singlemsg->pMsgContent)->v());
 			break;
 		default:
 			break;

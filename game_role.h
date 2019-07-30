@@ -27,6 +27,11 @@ class game_role :
 	GameMsg *MakeLogoff();
 	//构造广播聊天消息
 	GameMsg *MakeTalkBroadCast(std::string _content);
+	//构造新位置广播消息
+	GameMsg *MakeNewPostionBroadCast();
+
+	/*处理移动消息*/
+	void proc_new_position(float _x, float _y, float _z, float _v);
 public:
 	game_role();
 	virtual ~game_role();
