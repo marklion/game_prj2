@@ -2,6 +2,8 @@
 #include "game_channel.h"
 #include "AOI_world.h"
 #include "NamePool.h"
+#include "timer_channel.h"
+
 using namespace std;
 
 void daemonlize()
@@ -45,6 +47,11 @@ void daemonlize()
 			//父进程
 			int status;
 			wait(&status);
+			/*若子进程正常退出--》不要循环fork新子进程*/
+			if (0 == status)
+			{
+				exit(0);
+			}
 		}
 		else
 		{
@@ -74,9 +81,11 @@ int main()
 		{
 			cout << "listen failed" << endl;
 		}
+		ZinxKernel::Zinx_Add_Channel(*(new timer_channel()));
 		/*run*/
 		ZinxKernel::Zinx_Run();
 		ZinxKernel::ZinxKernelFini();
 	}
 
+	return 0;
 }

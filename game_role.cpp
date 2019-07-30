@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <random>
 #include "NamePool.h"
+#include "timer_channel.h"
 
 using namespace std;
 static AOI_world g_world(0, 400, 0, 400, 20, 20);
@@ -195,9 +196,31 @@ game_role::~game_role()
 	NamePool::GetInstance().ReleaseName(m_username);
 }
 
+/*定义退出定时任务*/
+class exit_framework_task :public timeout_task {
+	// 通过 timeout_task 继承
+	virtual void proc_timeout() override
+	{
+		ZinxKernel::Zinx_Exit();
+	}
+};
+
+static exit_framework_task *peft = NULL;
+
 /*新客户端连接后*/
 bool game_role::Init()
 {
+	/*若本玩家是第一个玩家---》删掉退出定时任务*/
+	if (ZinxKernel::Zinx_GetAllRole().size() <= 0)
+	{
+		if (NULL != peft)
+		{
+			timeout_deliver::GetInstance()->unregister_task(peft);
+			delete peft;
+			peft = NULL;
+		}
+	}
+
 	/*将玩家添加到游戏世界中*/
 	g_world.AddPlayer(this);
 
@@ -262,6 +285,8 @@ UserData * game_role::ProcMsg(UserData & _poUserData)
 	return NULL;
 }
 
+
+
 void game_role::Fini()
 {
 	//客户端断开时，向周围玩家发送其断开的消息
@@ -275,6 +300,13 @@ void game_role::Fini()
 	}
 	/*从游戏世界摘出玩家*/
 	g_world.DelPlayer(this);
+
+	/*判断若此玩家是最后一人---》起退出定时器*/
+	if (ZinxKernel::Zinx_GetAllRole().size() <= 1)
+	{
+		peft = new exit_framework_task();
+		timeout_deliver::GetInstance()->register_task(20, peft);
+	}
 }
 
 int game_role::getX()
