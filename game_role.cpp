@@ -3,6 +3,8 @@
 #include <iostream>
 #include "msg.pb.h"
 #include <algorithm>
+#include <random>
+#include "NamePool.h"
 
 using namespace std;
 static AOI_world g_world(0, 400, 0, 400, 20, 20);
@@ -173,16 +175,24 @@ void game_role::view_appear(game_role *_new_srd)
 	ZinxKernel::Zinx_SendOut(*appear, *(this->pGameProtocol));
 }
 
+/*定义全局对象存随机数引擎*/
+static default_random_engine e(time(NULL));
+
 game_role::game_role()
 {
-	x = 100;
-	z = 100;
+	/*随机产生x和z的值*/
+	x = 200 + e() % 10;
+	z = 100 + e() % 10;
+
+	/*获取随机姓名*/
+	m_username = NamePool::GetInstance().GetName();
 	iPid = g_curID++;
 }
 
 
 game_role::~game_role()
 {
+	NamePool::GetInstance().ReleaseName(m_username);
 }
 
 /*新客户端连接后*/

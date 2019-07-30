@@ -82,6 +82,7 @@
     <ClCompile Include="game_role.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="msg.pb.cpp" />
+    <ClCompile Include="NamePool.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AOI_world.h" />
@@ -90,6 +91,7 @@
     <ClInclude Include="game_protocol.h" />
     <ClInclude Include="game_role.h" />
     <ClInclude Include="msg.pb.h" />
+    <ClInclude Include="NamePool.h" />
   </ItemGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Link>
