@@ -4,10 +4,61 @@
 #include "NamePool.h"
 using namespace std;
 
+void daemonlize()
+{
+	/*fork------>退掉父进程*/
+	int ichildpid = fork();
+	if (0 > ichildpid)
+	{
+		exit(-1);
+	}
+	if (ichildpid > 0)
+	{
+		/*父进程*/
+		exit(0);
+	}
+	
+	/*子进程*/
+	/*设置会话id*/
+	setsid();
+	/*重定向0 1 2*/
+	int nullfd = open("/dev/null", O_RDWR);
+	if (nullfd >= 0)
+	{
+		dup2(nullfd, 0);
+		dup2(nullfd, 1);
+		dup2(nullfd, 2);
 
+		close(nullfd);
+	}
+
+	/*循环fork---》父进程wait--》子进程执行游戏业务*/
+	while (1)
+	{
+		int ipid = fork();
+		if (ipid < 0)
+		{
+			exit(-1);
+		}
+		if (ipid > 0)
+		{
+			//父进程
+			int status;
+			wait(&status);
+		}
+		else
+		{
+			//子进程
+			break;
+		}
+	}
+}
 
 int main()
 {
+	/*让进程变成守护进程*/
+	daemonlize();
+
 	/*加载随机姓名文件*/
 	if (false == NamePool::GetInstance().LoadFile())
 	{

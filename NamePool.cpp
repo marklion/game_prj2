@@ -17,6 +17,10 @@ NamePool::~NamePool()
 static default_random_engine e(time(NULL));
 std::string NamePool::GetName()
 {
+	if (m_pool.size() <= 0)
+	{
+		return "没有名字了";
+	}
 	/*随机取出姓*/
 	int first_index = e() % m_pool.size();
 	FirstName_vector &first_vec = m_pool[first_index];
@@ -39,6 +43,35 @@ std::string NamePool::GetName()
 
 void NamePool::ReleaseName(std::string _name)
 {
+	/*拆分全名--》姓和名*/
+	int space_pos = _name.find(' ');
+	string first_name = _name.substr(0, space_pos);
+	string last_name = _name.substr(space_pos + 1, _name.size() - space_pos - 1);
+
+	bool flag = false;
+
+	/*根据姓找到名应该存放的容器*/
+	for (auto first : m_pool)
+	{
+		if (first_name == first.m_first_name)
+		{
+			/*找到了-》将名存到容器中*/
+			first.m_last_vect.push_back(last_name);
+			flag = true;
+			break;
+		}
+	}
+	
+	if (false == flag)
+	{
+		/*没找到---》构造姓和姓所对应的名容器的对象---》存名*/
+		FirstName_vector tmp;
+		tmp.m_first_name = first_name;
+		tmp.m_last_vect.push_back(last_name);
+
+		/*存到姓名池中*/
+		m_pool.push_back(tmp);
+	}
 }
 
 bool NamePool::LoadFile()
