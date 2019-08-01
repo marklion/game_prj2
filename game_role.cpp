@@ -6,6 +6,7 @@
 #include <random>
 #include "NamePool.h"
 #include "timer_channel.h"
+#include <hiredis/hiredis.h>
 
 using namespace std;
 static AOI_world g_world(0, 400, 0, 400, 20, 20);
@@ -246,6 +247,13 @@ bool game_role::Init()
 		ZinxKernel::Zinx_SendOut(*pinit_pos, *(dynamic_cast<game_role *>(single)->pGameProtocol));
 	}
 
+	/*添加昵称到redis game_name链表中*/
+	auto context = redisConnect("127.0.0.1", 6379);
+	if (context != NULL)
+	{
+		freeReplyObject( redisCommand(context, "lpush game_name %s", m_username.c_str()));
+		redisFree(context);
+	}
 
 	return true;
 }
@@ -289,6 +297,14 @@ UserData * game_role::ProcMsg(UserData & _poUserData)
 
 void game_role::Fini()
 {
+	/*从redis game_name 摘掉昵称*/
+	auto context = redisConnect("127.0.0.1", 6379);
+	if (NULL != context)
+	{
+		freeReplyObject(redisCommand(context, "lrem game_name 1 %s", m_username.c_str()));
+		redisFree(context);
+	}
+
 	//客户端断开时，向周围玩家发送其断开的消息
 	/*获取周围玩家，循环发送*/
 	auto player_list = g_world.GetSrdPlayers(this);
